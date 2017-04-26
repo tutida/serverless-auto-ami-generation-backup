@@ -1,0 +1,38 @@
+service: auto-ami-generation
+
+frameworkVersion: ">=1.10.0 <2.0.0"
+
+provider:
+  name: aws
+  stage: v1
+  runtime: python2.7
+  region: ap-northeast-1
+
+functions:
+  backup:
+    handler: handler.lambda_handler
+    memorySize: 128
+    timeout: 300
+    description: AMI Generation Backup http://pict3.hatenablog.com/entry/2015/12/09/104015
+    role: AmiGenerationBackupExcutionRole
+    events:
+      - schedule: ${opt:schedule}
+
+resources:
+  Resources:
+    AmiGenerationBackupExcutionRole:
+      Type: AWS::IAM::Role
+      Properties:
+        RoleName: ami-generation-backup-excution-role
+        AssumeRolePolicyDocument:
+          Version: '2012-10-17'
+          Statement:
+            - Effect: Allow
+              Principal:
+                Service:
+                  - lambda.amazonaws.com
+              Action:
+                - sts:AssumeRole
+        ManagedPolicyArns:
+          - arn:aws:iam::aws:policy/AmazonEC2FullAccess
+          - arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole
