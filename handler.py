@@ -147,7 +147,13 @@ def construct_backup_tags(instance_info):
     ret_tags = []
     tags = instance_info['Tags']
     for tag in tags:
+
+        # バックアップ設定用のタグは除去する
         if (TAG_KEY_BACKUP_GENERATION == tag['Key']):
+            continue
+
+        # "aws:"から始まるタグは予約タグなので除去（Cfnから作成時などに付与されている
+        if (tag['Key'].startswith("aws:")):
             continue
 
         ret_tags.append(tag)
